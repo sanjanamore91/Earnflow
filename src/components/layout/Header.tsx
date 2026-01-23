@@ -1,7 +1,14 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { Menu, X, LogOut, User } from "lucide-react";
+import { useState, useEffect } from "react";
+import { auth } from "@/lib/firebase";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -9,12 +16,39 @@ const navLinks = [
   { name: "Services", path: "/services" },
   { name: "Pricing", path: "/pricing" },
   { name: "Contact", path: "/contact" },
-  { name: "Login", path: "/login" },
 ];
 
 export const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUserEmail(user.email);
+      } else {
+        setUserEmail(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      setLoading(true);
+      await auth.signOut();
+      navigate("/login");
+    } catch (err) {
+      console.error("Logout failed:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -41,6 +75,51 @@ export const Header = () => {
               {link.name}
             </Link>
           ))}
+
+          {/* User Menu or Login Button */}
+          {userEmail ? (
+            <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+              <div onMouseEnter={() => setMenuOpen(true)} onMouseLeave={() => setMenuOpen(false)}>
+                <DropdownMenuTrigger asChild>
+                  <button className="px-4 py-2 text-sm font-medium rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-muted flex items-center gap-2 cursor-pointer">
+                    <User className="h-4 w-4" />
+                    <span className="truncate max-w-[150px]">{userEmail.split("@")[0]}</span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem disabled className="text-xs text-muted-foreground">
+                    {userEmail}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => navigate("/dashboard")}
+                    className="cursor-pointer"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    disabled={loading}
+                    className="cursor-pointer text-red-600"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </div>
+            </DropdownMenu>
+          ) : (
+            <Link
+              to="/login"
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                location.pathname === "/login"
+                  ? "text-primary bg-accent"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              Login
+            </Link>
+          )}
         </nav>
 
 
@@ -72,6 +151,46 @@ export const Header = () => {
                 {link.name}
               </Link>
             ))}
+
+            {/* Mobile User Menu */}
+            {userEmail ? (
+              <>
+                <div className="px-4 py-2 text-xs text-muted-foreground border-t border-border mt-2">
+                  {userEmail}
+                </div>
+                <Link
+                  to="/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-4 py-3 text-sm font-medium rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-muted flex items-center gap-2"
+                >
+                  <User className="h-4 w-4" />
+                  Dashboard
+                </Link>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setMobileMenuOpen(false);
+                  }}
+                  disabled={loading}
+                  className="px-4 py-3 text-sm font-medium rounded-lg transition-colors text-red-600 hover:bg-muted text-left flex items-center gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                  location.pathname === "/login"
+                    ? "text-primary bg-accent"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                Login
+              </Link>
+            )}
           </nav>
         </div>
       )}
