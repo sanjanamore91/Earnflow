@@ -9,6 +9,7 @@ const navLinks = [
   { name: "Services", path: "/services" },
   { name: "Pricing", path: "/pricing" },
   { name: "Contact", path: "/contact" },
+  { name: "Login", path: "/login" },
 ];
 
 export const Header = () => {
@@ -42,12 +43,7 @@ export const Header = () => {
           ))}
         </nav>
 
-        <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm">
-            Sign In
-          </Button>
-          <Button size="sm">Get Started</Button>
-        </div>
+
 
         {/* Mobile Menu Button */}
         <button
@@ -76,10 +72,6 @@ export const Header = () => {
                 {link.name}
               </Link>
             ))}
-            <div className="flex gap-3 mt-4 px-4">
-              <Button variant="outline" className="flex-1">Sign In</Button>
-              <Button className="flex-1">Get Started</Button>
-            </div>
           </nav>
         </div>
       )}
