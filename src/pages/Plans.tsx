@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LogOut, User } from "lucide-react";
 
-export default function Dashboard() {
+export default function Plans() {
   const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -58,45 +58,41 @@ export default function Dashboard() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => navigate("/plans")}
-                  className="cursor-pointer focus:outline-none"
-                >
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Plans</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground">
-                       Ideal for personal use and getting started.Manage basic tasks with projects.You can earn 5% on each successful referral.
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
+                {[1499, 3999, 8999, 14999, 21999, 41999, 61999, 81999].map((price) => {
+                  const formatted = new Intl.NumberFormat().format(price);
+                  if (price === 1499) {
+                    return (
+                      <div
+                        key={price}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => navigate("/hierarchy1499")}
+                        onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && navigate("/hierarchy1499")}
+                        className="cursor-pointer focus:outline-none"
+                      >
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="text-lg">{formatted}</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-sm text-muted-foreground">Plan amount: {formatted}</p>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    );
+                  }
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Today task</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                     Your task for today.All necessary details, timelines, and deliverables were explained to ensure proper understanding.
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Withdraw</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                     You can wirthdraw your earnings alternatively after reaching the minimum threshold and twenty days interval.
-                    </p>
-                  </CardContent>
-                </Card>
+                  return (
+                    <Card key={price}>
+                      <CardHeader>
+                        <CardTitle className="text-lg">{formatted}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-muted-foreground">Plan amount: {formatted}</p>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
