@@ -14,3 +14,6 @@ publish = "dist"
 [context.develop]
 command = "npm run dev"
 publish = "dist"
+
+# Note: Backend API is now handled by Firebase
+# No backend server needed - everything runs client-side
