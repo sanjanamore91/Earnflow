@@ -9,6 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { LogOut, User } from "lucide-react";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
 export default function Sector1499() {
   const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState<string>("");
@@ -43,7 +45,7 @@ export default function Sector1499() {
   const fetchButtonEmails = async (uid: string) => {
     try {
       console.log("Fetching button emails for user:", uid);
-      const response = await fetch(`/api/form-data?userId=${uid}`);
+      const response = await fetch(`${API_URL}/api/form-data?userId=${uid}`);
       console.log("Response status:", response.status);
       if (response.ok) {
         const data = await response.json();
@@ -104,7 +106,7 @@ export default function Sector1499() {
 
     try {
       setSubmitting(true);
-      const response = await fetch("/api/save-form-data", {
+      const response = await fetch(`${API_URL}/api/save-form-data`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
