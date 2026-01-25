@@ -1,143 +1,71 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "@/lib/firebase";
+import app, { auth } from "@/lib/firebase";
+import { getFirestore, collection, addDoc, setDoc, doc, updateDoc, arrayUnion, serverTimestamp, getDoc, getDocs, query as firestoreQuery, where, enableNetwork } from "firebase/firestore";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LogOut, User } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
-function MLMTree() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [nodes, setNodes] = useState([
-    { id: 0, label: "Root" },
-    { id: 1, label: "Left" },
-    { id: 2, label: "Right" },
-    { id: 3, label: "L1" },
-    { id: 4, label: "L2" },
-    { id: 5, label: "L3" },
-    { id: 6, label: "R1" },
-    { id: 7, label: "R2" },
-    { id: 8, label: "R3" },
-  ]);
-  const [width, setWidth] = useState(0);
-
-  useEffect(() => {
-    const update = () => {
-      if (containerRef.current) setWidth(containerRef.current.clientWidth);
-    };
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
-
-  const boxSize = 70;
-  const boxHalf = boxSize / 2;
-  const margin = 40;
-
-  const handleNodeChange = (nodeId: number, newLabel: string) => {
-    setNodes((prev) =>
-      prev.map((node) => (node.id === nodeId ? { ...node, label: newLabel } : node))
-    );
-  };
-
-  return (
-    <div className="relative w-full" style={{ height: 600 }} ref={containerRef}>
-      {width > 0 && (
-        <svg
-          className="absolute inset-0 w-full h-full"
-          viewBox={`0 0 ${width} 600`}
-          preserveAspectRatio="none"
-          style={{ pointerEvents: "none" }}
-        >
-          {(() => {
-            const rows = [[0], [1, 2], [3, 4, 5, 6, 7, 8]];
-            const yStep = 140;
-            const coords: Record<number, { x: number; y: number }> = {};
-
-            rows.forEach((row, rIdx) => {
-              const n = row.length;
-              row.forEach((nodeIdx, i) => {
-                const x = margin + ((i + 1) * (width - margin * 2)) / (n + 1);
-                const y = 40 + rIdx * yStep + boxHalf;
-                coords[nodeIdx] = { x, y };
-              });
-            });
-
-            const paths: JSX.Element[] = [];
-            [[0, [1, 2]], [1, [3, 4, 5]], [2, [6, 7, 8]]].forEach(([p, children]) => {
-              (children as number[]).forEach((c) => {
-                const pC = coords[p as number];
-                const cC = coords[c];
-                if (pC && cC) {
-                  const midY = (pC.y + cC.y) / 2;
-                  const d = `M ${pC.x} ${pC.y + boxHalf} L ${pC.x} ${midY} L ${cC.x} ${midY} L ${cC.x} ${cC.y - boxHalf}`;
-                  paths.push(
-                    <path
-                      key={`path-${p}-${c}`}
-                      d={d}
-                      stroke="#cbd5e1"
-                      strokeWidth={3}
-                      strokeLinecap="round"
-                      fill="none"
-                    />
-                  );
-                }
-              });
-            });
-            return paths;
-          })()}
-        </svg>
-      )}
-
-      {/* Render nodes */}
-      {(() => {
-        const rows = [[0], [1, 2], [3, 4, 5, 6, 7, 8]];
-        const yStep = 140;
-
-        return rows.flatMap((row, rIdx) => {
-          const n = row.length;
-          return row.map((nodeIdx, i) => {
-            const x = width ? margin + ((i + 1) * (width - margin * 2)) / (n + 1) : 0;
-            const y = 40 + rIdx * yStep + boxHalf;
-            const left = Math.max(margin, Math.min(width - boxSize - margin, x - boxHalf));
-            const top = y - boxHalf;
-
-            return (
-              <div
-                key={`node-${nodeIdx}`}
-                style={{
-                  position: "absolute",
-                  left,
-                  top,
-                  width: boxSize,
-                  height: boxSize,
-                  zIndex: 10,
-                }}
-                className="rounded-lg shadow-md hover:shadow-lg transition-shadow"
-              >
-                <div className="w-full h-full rounded-lg bg-white border-2 border-gray-300 flex items-center justify-center">
-                  <input
-                    type="text"
-                    value={nodes[nodeIdx].label}
-                    onChange={(e) => handleNodeChange(nodeIdx, e.target.value)}
-                    onFocus={(e) => e.target.select()}
-                    placeholder={`Node ${nodeIdx}`}
-                    className="w-full h-full text-center bg-transparent text-gray-800 font-semibold text-sm outline-none px-2 rounded-md"
-                  />
-                </div>
-              </div>
-            );
-          });
-        });
-      })()}
-    </div>
-  );
-}
+// MLMTree component removed per request
 
 export default function Hierarchy1499() {
   const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [parentId, setParentId] = useState<string>("");
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [creating, setCreating] = useState(false);
+  const [message, setMessage] = useState<string>("");
+  const [newParentName, setNewParentName] = useState<string>("");
+  const [newParentEmail, setNewParentEmail] = useState<string>("");
+  const [creatingParent, setCreatingParent] = useState(false);
+  const PENDING_PARENT_KEY = "pending_mlm_parents";
+
+  useEffect(() => {
+    const trySync = async () => {
+      const raw = localStorage.getItem(PENDING_PARENT_KEY);
+      if (!raw) return;
+      let list: Array<any> = [];
+      try {
+        list = JSON.parse(raw || "[]");
+      } catch {
+        list = [];
+      }
+      if (!list.length) return;
+      for (const p of list.slice()) {
+        try {
+          const ref = doc(db, "mlmUsers", p.id);
+          await setDoc(ref, {
+            name: p.name,
+            email: p.email || null,
+            parentId: null,
+            children: [],
+            createdAt: p.createdAt || serverTimestamp(),
+          });
+          // remove from local cache
+          list = list.filter((x) => x.id !== p.id);
+          localStorage.setItem(PENDING_PARENT_KEY, JSON.stringify(list));
+          setMessage(`Synced parent ${p.name} (id: ${p.id})`);
+        } catch (err) {
+          console.error("Background sync failed for parent", p.id, err);
+        }
+      }
+    };
+
+    const onOnline = () => {
+      trySync().catch(console.error);
+    };
+
+    window.addEventListener("online", onOnline);
+    // also attempt an initial sync
+    if (navigator.onLine) trySync().catch(console.error);
+    return () => window.removeEventListener("online", onOnline);
+  }, [db]);
+
+  const db = getFirestore(app);
 
   useEffect(() => {
     if (auth.currentUser) {
@@ -154,6 +82,158 @@ export default function Hierarchy1499() {
       console.error("Logout failed:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCreateUnderParent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage("");
+    if (!parentId) {
+      setMessage("Please provide a parent ID");
+      return;
+    }
+    if (!name || !email) {
+      setMessage("Please provide name and email for the new user");
+      return;
+    }
+
+    try {
+      setCreating(true);
+
+      // resolve parentRef: allow passing either a document id or an email
+      let parentRef = undefined as any;
+      let parentSnap = undefined as any;
+
+      if (parentId.includes("@")) {
+        // treat parentId as an email, query by email field
+        const q = firestoreQuery(collection(db, "mlmUsers"), where("email", "==", parentId));
+        try {
+          const qs = await getDocs(q);
+          if (qs.empty) {
+            setMessage("Parent node not found by email");
+            return;
+          }
+          parentRef = qs.docs[0].ref;
+        } catch (err) {
+          const msg = (err as Error).message || "";
+          if (/client is offline/i.test(msg)) {
+            // try to re-enable network and retry once
+            await enableNetwork(db);
+            const qs = await getDocs(q);
+            if (qs.empty) {
+              setMessage("Parent node not found by email");
+              return;
+            }
+            parentRef = qs.docs[0].ref;
+          } else {
+            throw err;
+          }
+        }
+      } else {
+        parentRef = doc(db, "mlmUsers", parentId);
+        try {
+          parentSnap = await getDoc(parentRef);
+        } catch (err) {
+          const msg = (err as Error).message || "";
+          if (/client is offline/i.test(msg)) {
+            await enableNetwork(db);
+            parentSnap = await getDoc(parentRef);
+          } else {
+            throw err;
+          }
+        }
+
+        if (!parentSnap || !parentSnap.exists()) {
+          setMessage("Parent node not found");
+          return;
+        }
+      }
+
+      // create child node
+      const childRef = await addDoc(collection(db, "mlmUsers"), {
+        name,
+        email,
+        parentId: parentRef.id,
+        children: [],
+        createdAt: serverTimestamp(),
+      });
+
+      // attach child id to parent
+      await updateDoc(parentRef, {
+        children: arrayUnion(childRef.id),
+      });
+
+      setMessage(`Created user ${name} (id: ${childRef.id}) under parent ${parentRef.id}`);
+      setName("");
+      setEmail("");
+    } catch (err) {
+      console.error(err);
+      setMessage("Failed to create user: " + (err as Error).message);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleCreateParent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage("");
+    if (!newParentName) {
+      setMessage("Please provide a name for the parent node");
+      return;
+    }
+
+    try {
+      // optimistic: generate id and update UI immediately
+      const parentRef = doc(collection(db, "mlmUsers"));
+      const id = parentRef.id;
+      setParentId(id);
+      setMessage(`Created parent ${newParentName} (local id: ${id})`);
+      const nameToSend = newParentName;
+      const emailToSend = newParentEmail || null;
+      setNewParentName("");
+      setNewParentEmail("");
+
+      // save to pending queue if offline or always attempt background write
+      const pending = { id, name: nameToSend, email: emailToSend, createdAt: Date.now() };
+      const raw = localStorage.getItem(PENDING_PARENT_KEY);
+      let list: Array<any> = [];
+      try {
+        list = raw ? JSON.parse(raw) : [];
+      } catch {
+        list = [];
+      }
+      list.push(pending);
+      localStorage.setItem(PENDING_PARENT_KEY, JSON.stringify(list));
+
+      // attempt immediate background write; if it fails, the 'online' sync will retry
+          setDoc(parentRef, {
+        name: nameToSend,
+        email: emailToSend,
+        parentId: null,
+        children: [],
+        createdAt: serverTimestamp(),
+      })
+        .then(() => {
+          // remove from pending
+          const raw2 = localStorage.getItem(PENDING_PARENT_KEY);
+          let list2: Array<any> = [];
+          try {
+            list2 = raw2 ? JSON.parse(raw2) : [];
+          } catch {
+            list2 = [];
+          }
+          list2 = list2.filter((x) => x.id !== id);
+          localStorage.setItem(PENDING_PARENT_KEY, JSON.stringify(list2));
+              setMessage(`Created parent ${nameToSend} (id: ${id})`);
+              toast({ title: "Parent created", description: `Parent ${nameToSend} (id: ${id}) created successfully.` });
+        })
+        .catch((err) => {
+          console.error("Parent background write failed, will retry on network:", err);
+          setMessage(`Parent saved locally (id: ${id}), will sync when online.`);
+        });
+    } catch (err) {
+      console.error(err);
+      setMessage("Failed to create parent: " + (err as Error).message);
     }
   };
 
@@ -185,15 +265,75 @@ export default function Hierarchy1499() {
                 </div>
               </div>
 
-              {/* Interactive MLM Tree */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">MLM Hierarchy Tree (Interactive)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <MLMTree />
-                </CardContent>
-              </Card>
+              <div className="p-4 bg-white rounded-md shadow-sm">
+                <h3 className="text-lg font-medium mb-3">Create parent node</h3>
+                <form onSubmit={handleCreateParent} className="space-y-3 mb-6">
+                  <div className="grid grid-cols-1 gap-2">
+                    <label className="text-sm">Parent name</label>
+                    <input
+                      value={newParentName}
+                      onChange={(e) => setNewParentName(e.target.value)}
+                      className="w-full border rounded px-3 py-2"
+                      placeholder="Parent username"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-2">
+                    <label className="text-sm">Parent email (optional)</label>
+                    <input
+                      value={newParentEmail}
+                      onChange={(e) => setNewParentEmail(e.target.value)}
+                      className="w-full border rounded px-3 py-2"
+                      placeholder="Parent email (optional)"
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Button type="submit" disabled={creatingParent}>{creatingParent ? 'Creating...' : 'Create Parent'}</Button>
+                    <Button variant="outline" onClick={() => { setNewParentName(''); setNewParentEmail(''); setMessage(''); }}>Reset</Button>
+                  </div>
+                </form>
+
+                <h3 className="text-lg font-medium mb-3">Create new user under a parent</h3>
+                <form onSubmit={handleCreateUnderParent} className="space-y-3">
+                  <div className="grid grid-cols-1 gap-2">
+                    <label className="text-sm">Parent ID</label>
+                    <input
+                      value={parentId}
+                      onChange={(e) => setParentId(e.target.value)}
+                      className="w-full border rounded px-3 py-2"
+                      placeholder="Enter parent document ID"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-2">
+                    <label className="text-sm">Name</label>
+                    <input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full border rounded px-3 py-2"
+                      placeholder="New user name"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-2">
+                    <label className="text-sm">Email</label>
+                    <input
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full border rounded px-3 py-2"
+                      placeholder="New user email"
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Button type="submit" disabled={creating}>{creating ? 'Creating...' : 'Create User'}</Button>
+                    <Button variant="outline" onClick={() => { setParentId(''); setName(''); setEmail(''); setMessage(''); }}>Reset</Button>
+                  </div>
+                </form>
+
+                {message && <p className="mt-3 text-sm text-muted-foreground">{message}</p>}
+              </div>
             </CardContent>
           </Card>
         </div>

@@ -66,8 +66,8 @@ export default function Plans() {
                         key={price}
                         role="button"
                         tabIndex={0}
-                        onClick={() => navigate("/hierarchy1499")}
-                        onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && navigate("/hierarchy1499")}
+                        onClick={() => navigate("/sector1499")}
+                        onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && navigate("/sector1499")}
                         className="cursor-pointer focus:outline-none"
                       >
                         <Card>

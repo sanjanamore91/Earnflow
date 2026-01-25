@@ -13,6 +13,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import Plans from "./pages/Plans";
 import Hierarchy1499 from "./pages/Hierarchy1499";
+import Sector1499 from "./pages/Sector1499";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -53,6 +54,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Hierarchy1499 />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sector1499"
+            element={
+              <ProtectedRoute>
+                <Sector1499 />
               </ProtectedRoute>
             }
           />
