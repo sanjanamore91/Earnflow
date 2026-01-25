@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, onAuthStateChanged } from "@/lib/firebase";
+import { saveFormData, getFormDataByUser, FormEntry } from "@/lib/firebaseDb";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { LogOut, User } from "lucide-react";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 export default function Sector1499() {
   const navigate = useNavigate();
@@ -45,25 +44,19 @@ export default function Sector1499() {
   const fetchButtonEmails = async (uid: string) => {
     try {
       console.log("Fetching button emails for user:", uid);
-      const response = await fetch(`${API_URL}/api/form-data?userId=${uid}`);
-      console.log("Response status:", response.status);
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Fetched data for user:", data);
-        if (data.length > 0) {
-          setButton1Email(data[0]?.email || "");
-          console.log("Button 1 email set to:", data[0]?.email);
-        } else {
-          setButton1Email("");
-        }
-        if (data.length > 1) {
-          setButton2Email(data[1]?.email || "");
-          console.log("Button 2 email set to:", data[1]?.email);
-        } else {
-          setButton2Email("");
-        }
+      const data = await getFormDataByUser(uid);
+      console.log("Fetched data for user:", data);
+      if (data.length > 0) {
+        setButton1Email(data[0]?.email || "");
+        console.log("Button 1 email set to:", data[0]?.email);
       } else {
-        console.error("Failed to fetch, status:", response.status);
+        setButton1Email("");
+      }
+      if (data.length > 1) {
+        setButton2Email(data[1]?.email || "");
+        console.log("Button 2 email set to:", data[1]?.email);
+      } else {
+        setButton2Email("");
       }
     } catch (err) {
       console.error("Error fetching button emails:", err);
@@ -106,29 +99,15 @@ export default function Sector1499() {
 
     try {
       setSubmitting(true);
-      const response = await fetch(`${API_URL}/api/save-form-data`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          userId: userId,
-        }),
-      });
-
-      if (response.ok) {
-        alert("Form data saved successfully!");
-        
-        // Fetch updated emails from JSON file for this user
-        await fetchButtonEmails(userId);
-        
-        setFormData({ name: "", email: "" });
-        setIsDialogOpen(false);
-        setActiveButtonIndex(null);
-      } else {
-        alert("Failed to save form data");
-      }
+      await saveFormData(formData.name, formData.email, userId);
+      alert("Form data saved successfully!");
+      
+      // Fetch updated emails from Firebase for this user
+      await fetchButtonEmails(userId);
+      
+      setFormData({ name: "", email: "" });
+      setIsDialogOpen(false);
+      setActiveButtonIndex(null);
     } catch (err) {
       console.error("Error saving form data:", err);
       alert("Error saving form data");

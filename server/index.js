@@ -1,27 +1,32 @@
 import express from 'express';
 import cors from 'cors';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { initializeApp } from 'firebase/app';
+import { getDatabase, ref, push, query, orderByChild, equalTo, get, remove } from 'firebase/database';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const firebaseConfig = {
+  apiKey: "AIzaSyBlJGO4YqRL2CtMq9hpYOWMuesnpDRbyR4",
+  authDomain: "signup-6c531.firebaseapp.com",
+  projectId: "signup-6c531",
+  storageBucket: "signup-6c531.firebasestorage.app",
+  messagingSenderId: "1075553175213",
+  appId: "1:1075553175213:web:257c58be44959c48b7e824",
+  measurementId: "G-L47L95383V",
+  databaseURL: "https://signup-6c531-default-rtdb.firebaseio.com"
+};
 
-const app = express();
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
+const appExpress = express();
 const PORT = 3001;
-const DATA_FILE = path.join(__dirname, 'form-data.json');
 
 // Middleware
-app.use(cors());
-app.use(express.json());
-
-// Initialize data file if it doesn't exist
-if (!fs.existsSync(DATA_FILE)) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify([], null, 2));
-}
+appExpress.use(cors());
+appExpress.use(express.json());
 
 // API endpoint to save form data
-app.post('/api/save-form-data', (req, res) => {
+appExpress.post('/api/save-form-data', async (req, res) => {
   try {
     const { name, email, userId } = req.body;
 
@@ -30,24 +35,16 @@ app.post('/api/save-form-data', (req, res) => {
       return res.status(400).json({ error: 'Name, email, and userId are required' });
     }
 
-    // Read existing data
-    const fileContent = fs.readFileSync(DATA_FILE, 'utf-8');
-    const data = JSON.parse(fileContent);
-
-    // Add new entry with timestamp and userId
+    // Save to Firebase
+    const formDataRef = ref(database, 'formData');
     const newEntry = {
-      id: Date.now(),
       userId,
       name,
       email,
       createdAt: new Date().toISOString(),
     };
 
-    data.push(newEntry);
-
-    // Write updated data back to file
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-
+    await push(formDataRef, newEntry);
     res.json({ success: true, message: 'Form data saved successfully' });
   } catch (error) {
     console.error('Error saving form data:', error);
@@ -56,7 +53,7 @@ app.post('/api/save-form-data', (req, res) => {
 });
 
 // API endpoint to get form data for a specific user
-app.get('/api/form-data', (req, res) => {
+appExpress.get('/api/form-data', async (req, res) => {
   try {
     const userId = req.query.userId;
     
@@ -64,12 +61,24 @@ app.get('/api/form-data', (req, res) => {
       return res.status(400).json({ error: 'userId is required' });
     }
 
-    const fileContent = fs.readFileSync(DATA_FILE, 'utf-8');
-    const data = JSON.parse(fileContent);
-    
-    // Filter data for the specific user
-    const userdata = data.filter(entry => entry.userId === userId);
-    
+    // Query Firebase for user data
+    const formDataRef = ref(database, 'formData');
+    const userQuery = query(formDataRef, orderByChild('userId'), equalTo(userId));
+    const snapshot = await get(userQuery);
+
+    if (!snapshot.exists()) {
+      console.log(`No data found for user ${userId}`);
+      return res.json([]);
+    }
+
+    const userdata = [];
+    snapshot.forEach((childSnapshot) => {
+      userdata.push({
+        id: childSnapshot.key,
+        ...childSnapshot.val(),
+      });
+    });
+
     console.log(`Fetching data for user ${userId}, found ${userdata.length} entries`);
     res.json(userdata);
   } catch (error) {
@@ -78,6 +87,24 @@ app.get('/api/form-data', (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+// API endpoint to delete form entry
+appExpress.delete('/api/form-data/:entryId', async (req, res) => {
+  try {
+    const { entryId } = req.params;
+
+    if (!entryId) {
+      return res.status(400).json({ error: 'entryId is required' });
+    }
+
+    const entryRef = ref(database, `formData/${entryId}`);
+    await remove(entryRef);
+    res.json({ success: true, message: 'Entry deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting entry:', error);
+    res.status(500).json({ error: 'Failed to delete entry' });
+  }
+});
+
+appExpress.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
