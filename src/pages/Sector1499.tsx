@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, onAuthStateChanged } from "@/lib/firebase";
-import { saveFormData, getFormDataByUser, FormEntry } from "@/lib/firebaseDb";
+import { saveFormData, FormEntry } from "@/lib/firebaseDb";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,59 +9,30 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { LogOut, User } from "lucide-react";
+import ButtonTree from "@/components/ui/button-tree";
 
 export default function Sector1499() {
   const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [fields, setFields] = useState<string[]>(Array(9).fill(""));
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "" });
   const [submitting, setSubmitting] = useState(false);
-  const [button1Email, setButton1Email] = useState<string>("");
-  const [button2Email, setButton2Email] = useState<string>("");
-  const [activeButtonIndex, setActiveButtonIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserEmail(user.email || "");
         setUserId(user.uid || "");
-        // Fetch emails from JSON file when user changes
-        fetchButtonEmails(user.uid);
       } else {
         setUserEmail("");
         setUserId("");
-        setButton1Email("");
-        setButton2Email("");
       }
     });
 
     return () => unsubscribe();
   }, []);
-
-  const fetchButtonEmails = async (uid: string) => {
-    try {
-      console.log("Fetching button emails for user:", uid);
-      const data = await getFormDataByUser(uid);
-      console.log("Fetched data for user:", data);
-      if (data.length > 0) {
-        setButton1Email(data[0]?.email || "");
-        console.log("Button 1 email set to:", data[0]?.email);
-      } else {
-        setButton1Email("");
-      }
-      if (data.length > 1) {
-        setButton2Email(data[1]?.email || "");
-        console.log("Button 2 email set to:", data[1]?.email);
-      } else {
-        setButton2Email("");
-      }
-    } catch (err) {
-      console.error("Error fetching button emails:", err);
-    }
-  };
 
   const handleLogout = async () => {
     try {
@@ -73,14 +44,6 @@ export default function Sector1499() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleFieldChange = (index: number, value: string) => {
-    setFields((prev) => {
-      const next = [...prev];
-      next[index] = value;
-      return next;
-    });
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,12 +65,8 @@ export default function Sector1499() {
       await saveFormData(formData.name, formData.email, userId);
       alert("Form data saved successfully!");
       
-      // Fetch updated emails from Firebase for this user
-      await fetchButtonEmails(userId);
-      
       setFormData({ name: "", email: "" });
       setIsDialogOpen(false);
-      setActiveButtonIndex(null);
     } catch (err) {
       console.error("Error saving form data:", err);
       alert("Error saving form data");
@@ -143,36 +102,10 @@ export default function Sector1499() {
                   <p className="font-semibold">{userEmail}</p>
                 </div>
               </div>
-              <div>
-                <h3 className="text-lg font-medium">Sector Inputs</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-                  {fields.map((value, idx) => (
-                    <div key={idx} className="space-y-1">
-                      <Label htmlFor={`field-${idx}`}>Field {idx + 1}</Label>
-                      <Input
-                        id={`field-${idx}`}
-                        value={value}
-                        onChange={(e) => handleFieldChange(idx, e.target.value)}
-                        placeholder={`Enter value ${idx + 1}`}
-                      />
-                    </div>
-                  ))}
-                </div>
-                <div className="flex gap-4 mt-6">
-                  <Button onClick={() => {
-                    setActiveButtonIndex(0);
-                    setIsDialogOpen(true);
-                  }}>
-                    {button1Email || ""}
-                  </Button>
-                  <Button variant="secondary" onClick={() => {
-                    setActiveButtonIndex(1);
-                    setIsDialogOpen(true);
-                  }}>
-                    {button2Email || ""}
-                  </Button>
-                </div>
-              </div>
+
+              {/* MLM Tree with 3 levels and 9 members */}
+              <ButtonTree dashboardName={userEmail} />
+
             </CardContent>
           </Card>
         </div>
