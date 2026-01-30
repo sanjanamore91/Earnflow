@@ -76,16 +76,23 @@ export default function Dashboard() {
                   </Card>
                 </div>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Today task</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                     Your task for today.All necessary details, timelines, and deliverables were explained to ensure proper understanding.
-                    </p>
-                  </CardContent>
-                </Card>
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => navigate("/task")}
+                  className="cursor-pointer focus:outline-none"
+                >
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Today task</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">
+                       Your task for today.All necessary details, timelines, and deliverables were explained to ensure proper understanding.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
 
                 <Card>
                   <CardHeader>

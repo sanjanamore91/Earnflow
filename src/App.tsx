@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import Plans from "./pages/Plans";
+import Task from "./pages/Task";
 import Hierarchy1499 from "./pages/Hierarchy1499";
 import Sector1499 from "./pages/Sector1499";
 import NotFound from "./pages/NotFound";
@@ -46,6 +47,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Plans />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/task"
+            element={
+              <ProtectedRoute>
+                <Task />
               </ProtectedRoute>
             }
           />
