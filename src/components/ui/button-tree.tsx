@@ -238,7 +238,8 @@ export default function ButtonTree({ dashboardName = "" }: ButtonTreeProps) {
               const isRoot = member.id === 1;
               const radius = isRoot ? 28 : 22; // sizes relative to viewBox
 
-              const fill = isRoot ? "#2563eb" : member.id <= 3 ? "#059669" : "#7c3aed";
+              // Use theme green for all circles
+              const themeGreen = "#059669";
 
               return (
                 <g
@@ -247,7 +248,7 @@ export default function ButtonTree({ dashboardName = "" }: ButtonTreeProps) {
                   style={{ cursor: isRoot ? "default" : "pointer" }}
                   onClick={() => handleMemberClick(member)}
                 >
-                  <circle r={radius} fill={fill} />
+                  <circle r={radius} fill={themeGreen} />
                   <text x="0" y="8" fontSize="14" textAnchor="middle" fill="#fff" style={{ pointerEvents: "none", fontWeight: 700 }}>
                     {member.id === 1 ? (dashboardName ? dashboardName.substring(0, 6) : "") : (member.email ? member.email.substring(0, 6) : "")}
                   </text>
