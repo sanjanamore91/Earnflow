@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, onAuthStateChanged } from "@/lib/firebase";
-import { saveFormData, FormEntry } from "@/lib/firebaseDb";
+import { saveFormData, FormEntry, getRandomSentences } from "@/lib/firebaseDb";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ export default function Task() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [sentences, setSentences] = useState<string[]>([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -31,6 +32,19 @@ export default function Task() {
     });
 
     return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const fetchSentences = async () => {
+      try {
+        const randomSentences = await getRandomSentences(5);
+        setSentences(randomSentences);
+      } catch (error) {
+        console.error("Error fetching sentences:", error);
+      }
+    };
+
+    fetchSentences();
   }, []);
 
   const handleLogout = async () => {
@@ -63,7 +77,7 @@ export default function Task() {
       setSubmitting(true);
       await saveFormData(formData.name, formData.email, userId);
       alert("Form data saved successfully!");
-      
+
       setFormData({ name: "", email: "" });
       setIsDialogOpen(false);
     } catch (err) {
@@ -109,8 +123,11 @@ export default function Task() {
                     <Input
                       id="field1"
                       name="field1"
-                      placeholder="Enter text"
+                      placeholder="Loading sentence..."
                       type="text"
+                      value={sentences[0] || ""}
+                      readOnly
+                      className="bg-muted"
                     />
                   </div>
                   <div className="flex-1">
@@ -132,8 +149,11 @@ export default function Task() {
                     <Input
                       id="field3"
                       name="field3"
-                      placeholder="Enter text"
+                      placeholder="Loading sentence..."
                       type="text"
+                      value={sentences[1] || ""}
+                      readOnly
+                      className="bg-muted"
                     />
                   </div>
                   <div className="flex-1">
@@ -155,8 +175,11 @@ export default function Task() {
                     <Input
                       id="field5"
                       name="field5"
-                      placeholder="Enter text"
+                      placeholder="Loading sentence..."
                       type="text"
+                      value={sentences[2] || ""}
+                      readOnly
+                      className="bg-muted"
                     />
                   </div>
                   <div className="flex-1">
@@ -178,8 +201,11 @@ export default function Task() {
                     <Input
                       id="field7"
                       name="field7"
-                      placeholder="Enter text"
+                      placeholder="Loading sentence..."
                       type="text"
+                      value={sentences[3] || ""}
+                      readOnly
+                      className="bg-muted"
                     />
                   </div>
                   <div className="flex-1">
@@ -201,8 +227,11 @@ export default function Task() {
                     <Input
                       id="field9"
                       name="field9"
-                      placeholder="Enter text"
+                      placeholder="Loading sentence..."
                       type="text"
+                      value={sentences[4] || ""}
+                      readOnly
+                      className="bg-muted"
                     />
                   </div>
                   <div className="flex-1">
