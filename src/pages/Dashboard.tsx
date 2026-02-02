@@ -57,20 +57,20 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div
                   role="button"
                   tabIndex={0}
-                  onClick={() => navigate("/plans")}
+                  onClick={() => navigate("/info")}
                   className="cursor-pointer focus:outline-none"
                 >
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Plans</CardTitle>
+                      <CardTitle className="text-lg">Info</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm text-muted-foreground">
-                       Ideal for personal use and getting started.Manage basic tasks with projects.You can earn 5% on each successful referral.
+                        Add your plan details and personal information to get started with your account.
                       </p>
                     </CardContent>
                   </Card>
@@ -88,22 +88,47 @@ export default function Dashboard() {
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm text-muted-foreground">
-                       Your task for today.All necessary details, timelines, and deliverables were explained to ensure proper understanding.
+                        Your task for today.All necessary details, timelines, and deliverables were explained to ensure proper understanding.
                       </p>
                     </CardContent>
                   </Card>
                 </div>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Withdraw</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                     You can wirthdraw your earnings alternatively after reaching the minimum threshold and twenty days interval.
-                    </p>
-                  </CardContent>
-                </Card>
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => navigate("/plans")}
+                  className="cursor-pointer focus:outline-none"
+                >
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Add member</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">
+                        Ideal for personal use and getting started.Manage basic tasks with projects.You can earn 5% on each successful referral.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => navigate("/payment")}
+                  className="cursor-pointer focus:outline-none"
+                >
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Withdraw</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">
+                        You can wirthdraw your earnings alternatively after reaching the minimum threshold and twenty days interval.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             </CardContent>
           </Card>

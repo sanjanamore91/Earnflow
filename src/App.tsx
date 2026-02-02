@@ -13,6 +13,8 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import Plans from "./pages/Plans";
 import Task from "./pages/Task";
+import Payment from "./pages/Payment";
+import Info from "./pages/Info";
 import Hierarchy1499 from "./pages/Hierarchy1499";
 import Sector1499 from "./pages/Sector1499";
 import NotFound from "./pages/NotFound";
@@ -55,6 +57,22 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Task />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/payment"
+            element={
+              <ProtectedRoute>
+                <Payment />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/info"
+            element={
+              <ProtectedRoute>
+                <Info />
               </ProtectedRoute>
             }
           />
