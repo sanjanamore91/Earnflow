@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "@/lib/firebase";
-import { getEarningsByUser, EarningEntry, backfillHistoryEarnings } from "@/lib/firebaseDb";
+import { getEarningsByUser, EarningEntry, backfillHistoryEarnings, requestWithdrawal, getPlanDataByUser } from "@/lib/firebaseDb";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { LogOut, User, Wallet, ArrowLeft, History } from "lucide-react";
 export default function Payment() {
     const navigate = useNavigate();
     const [userEmail, setUserEmail] = useState<string>("");
+    const [userId, setUserId] = useState<string>("");
     const [loading, setLoading] = useState(false);
     const [balance, setBalance] = useState<number>(0);
     const [transactions, setTransactions] = useState<EarningEntry[]>([]);
@@ -18,10 +19,19 @@ export default function Payment() {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const userId = user.uid;
+                setUserId(userId);
                 const email = user.email || "";
                 setUserEmail(email);
 
                 try {
+                    setLoading(true);
+                    // 0. Check for active plan first
+                    const plans = await getPlanDataByUser(userId);
+                    if (!plans || plans.length === 0) {
+                        navigate("/info");
+                        return; // Stop further execution
+                    }
+
                     // 1. Robust backfill of all historical earnings based on task completions
                     await backfillHistoryEarnings(userId);
 
@@ -39,12 +49,14 @@ export default function Payment() {
                     setBalance(total);
                 } catch (error) {
                     console.error("Error fetching earnings:", error);
+                } finally {
+                    setLoading(false);
                 }
             }
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [navigate]);
 
     const handleLogout = async () => {
         try {
@@ -135,8 +147,30 @@ export default function Payment() {
                                         </p>
                                     </div>
 
-                                    <Button className="w-full" disabled>
-                                        Request Withdrawal (Coming Soon)
+                                    <Button
+                                        className="w-full"
+                                        onClick={async () => {
+                                            try {
+                                                setLoading(true);
+                                                // Call withdrawal function
+                                                const result = await requestWithdrawal(userId, balance);
+
+                                                if (result.success) {
+                                                    alert(result.message);
+                                                    // Update local state to reflect changes immediately
+                                                    setBalance(0);
+                                                    setTransactions([]);
+                                                }
+                                            } catch (error) {
+                                                console.error("Withdrawal failed:", error);
+                                                alert("Failed to process withdrawal request");
+                                            } finally {
+                                                setLoading(false);
+                                            }
+                                        }}
+                                        disabled={loading || balance <= 0}
+                                    >
+                                        {loading ? "Processing..." : "Request Withdrawal"}
                                     </Button>
                                 </CardContent>
                             </Card>

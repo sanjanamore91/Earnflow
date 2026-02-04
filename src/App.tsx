@@ -47,7 +47,7 @@ const App = () => (
           <Route
             path="/plans"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireVerifiedEmail={true}>
                 <Plans />
               </ProtectedRoute>
             }
@@ -55,7 +55,7 @@ const App = () => (
           <Route
             path="/task"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireVerifiedEmail={true}>
                 <Task />
               </ProtectedRoute>
             }
@@ -63,7 +63,7 @@ const App = () => (
           <Route
             path="/payment"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireVerifiedEmail={true}>
                 <Payment />
               </ProtectedRoute>
             }
@@ -71,7 +71,7 @@ const App = () => (
           <Route
             path="/info"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireVerifiedEmail={true}>
                 <Info />
               </ProtectedRoute>
             }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "@/lib/firebase";
+import { getPlanDataByUser } from "@/lib/firebaseDb";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,10 +13,27 @@ export default function Plans() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (auth.currentUser) {
-      setUserEmail(auth.currentUser.email || "");
-    }
-  }, []);
+    const checkPlan = async () => {
+      if (auth.currentUser) {
+        setUserEmail(auth.currentUser.email || "");
+        const userId = auth.currentUser.uid;
+        try {
+          setLoading(true);
+          const plans = await getPlanDataByUser(userId);
+
+          // If no plans found, redirect to info page
+          if (!plans || plans.length === 0) {
+            navigate("/info");
+          }
+        } catch (error) {
+          console.error("Error checking plan status:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    checkPlan();
+  }, [navigate]);
 
   const handleLogout = async () => {
     try {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, onAuthStateChanged } from "@/lib/firebase";
-import { saveFormData, FormEntry, getRandomSentences, saveTaskResponse, getDailySentences, saveTaskCompletion, checkTaskCompletionToday } from "@/lib/firebaseDb";
+import { saveFormData, FormEntry, getRandomSentences, saveTaskResponse, getDailySentences, saveTaskCompletion, checkTaskCompletionToday, getPlanDataByUser } from "@/lib/firebaseDb";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,6 +84,36 @@ export default function Task() {
 
     checkCompletion();
   }, [userId]);
+
+  useEffect(() => {
+    const checkPlan = async () => {
+      // Wait for authentication to resolve first
+      if (!userId) return;
+
+      try {
+        setLoading(true);
+        const plans = await getPlanDataByUser(userId);
+
+        // If no plans found, redirect to plans page
+        if (!plans || plans.length === 0) {
+          // Use a small timeout to ensure state updates don't conflict
+          setTimeout(() => {
+            navigate("/info");
+            // Optional: User could be notified via toast here
+            // alert("You need an active plan to access tasks.");
+          }, 100);
+        }
+      } catch (error) {
+        console.error("Error checking plan status:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (userId) {
+      checkPlan();
+    }
+  }, [userId, navigate]);
 
   const handleLogout = async () => {
     try {

@@ -522,7 +522,8 @@ export const backfillHistoryEarnings = async (userId: string): Promise<{ process
       const dailyData = snapshot.val();
       for (const date in dailyData) {
         // Check if date node exists and has completed: true
-        if (dailyData[date] && dailyData[date].completed === true) {
+        // Also check if earnings have already been withdrawn for this date
+        if (dailyData[date] && dailyData[date].completed === true && !dailyData[date].earningsWithdrawn) {
           // Attempt to save earning for this date (handles duplicate check internally)
           await calculateAndSaveDailyEarning(userId, date);
           processed++;
@@ -533,6 +534,53 @@ export const backfillHistoryEarnings = async (userId: string): Promise<{ process
     return { processed };
   } catch (error) {
     console.error("Error backfilling history earnings:", error);
+    throw error;
+  }
+};
+
+// Withdrawal management
+export interface WithdrawalRequest {
+  id?: string;
+  userId: string;
+  amount: number;
+  status: 'pending' | 'approved' | 'rejected';
+  requestedAt: string;
+}
+
+// Request withdrawal and clear earnings
+export const requestWithdrawal = async (
+  userId: string,
+  amount: number
+): Promise<{ success: boolean; message: string }> => {
+  try {
+    // 1. Save withdrawal request
+    const withdrawalsRef = ref(database, "withdrawals");
+    const newWithdrawal: WithdrawalRequest = {
+      userId,
+      amount,
+      status: 'pending',
+      requestedAt: new Date().toISOString(),
+    };
+
+    await push(withdrawalsRef, newWithdrawal);
+
+    // 2. Mark existing earnings as withdrawn in dailySentences
+    // This prevents backfillHistoryEarnings from restoring them
+    const currentEarnings = await getEarningsByUser(userId);
+    for (const earning of currentEarnings) {
+      if (earning.date) {
+        const dailyStatusRef = ref(database, `dailySentences/${userId}/${earning.date}`);
+        await update(dailyStatusRef, { earningsWithdrawn: true });
+      }
+    }
+
+    // 3. Clear all earnings for the user
+    const userEarningsRef = ref(database, `users/${userId}/earnings`);
+    await remove(userEarningsRef);
+
+    return { success: true, message: "Withdrawal accepted" };
+  } catch (error) {
+    console.error("Error requesting withdrawal:", error);
     throw error;
   }
 };

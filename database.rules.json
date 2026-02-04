@@ -1,0 +1,48 @@
+{
+    "rules": {
+        "users": {
+            "$uid": {
+                ".read": "$uid === auth.uid",
+                ".write": "$uid === auth.uid"
+            }
+        },
+        "dailySentences": {
+            "$uid": {
+                ".read": "$uid === auth.uid",
+                ".write": "$uid === auth.uid"
+            }
+        },
+        "taskCompletions": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            ".indexOn": [
+                "userId"
+            ]
+        },
+        "taskResponses": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            ".indexOn": [
+                "userId"
+            ]
+        },
+        "formData": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            ".indexOn": [
+                "userId"
+            ]
+        },
+        "sentences": {
+            ".read": true,
+            ".write": "auth != null"
+        },
+        "withdrawals": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            ".indexOn": [
+                "userId"
+            ]
+        }
+    }
+}
