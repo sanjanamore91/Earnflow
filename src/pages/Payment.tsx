@@ -13,6 +13,7 @@ export default function Payment() {
     const [userId, setUserId] = useState<string>("");
     const [loading, setLoading] = useState(false);
     const [balance, setBalance] = useState<number>(0);
+    const [currentPlanAmount, setCurrentPlanAmount] = useState<number>(0);
     const [transactions, setTransactions] = useState<EarningEntry[]>([]);
 
     useEffect(() => {
@@ -31,6 +32,11 @@ export default function Payment() {
                         navigate("/info");
                         return; // Stop further execution
                     }
+
+                    const latestPlan = plans[plans.length - 1];
+                    // Clean both "Rs." and "$" prefixes
+                    const cleanAmount = latestPlan.planAmount.replace(/^(Rs\.|\$)/i, '').replace(/[^0-9.]/g, '');
+                    setCurrentPlanAmount(parseFloat(cleanAmount));
 
                     // 1. Robust backfill of all historical earnings based on task completions
                     await backfillHistoryEarnings(userId);
@@ -115,7 +121,7 @@ export default function Payment() {
                                     </div>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="text-4xl font-bold text-primary">₹{balance.toFixed(2)}</p>
+                                    <p className="text-4xl font-bold text-primary">${balance.toFixed(2)}</p>
                                     <p className="text-sm text-muted-foreground mt-2">
                                         Total earnings from completed tasks
                                     </p>
@@ -134,6 +140,7 @@ export default function Payment() {
                                         <h4 className="font-semibold">Requirements:</h4>
                                         <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                                             <li>Minimum withdrawal threshold must be reached</li>
+                                            <li>Balance must be at least ${(currentPlanAmount * 0.02).toFixed(2)} (2% of plan)</li>
                                             <li>Twenty days interval between withdrawals</li>
                                             <li>Valid payment method must be configured</li>
                                             <li>Account must be verified</li>
@@ -168,7 +175,7 @@ export default function Payment() {
                                                 setLoading(false);
                                             }
                                         }}
-                                        disabled={loading || balance <= 0}
+                                        disabled={loading || balance <= 0 || balance < (currentPlanAmount * 0.02)}
                                     >
                                         {loading ? "Processing..." : "Request Withdrawal"}
                                     </Button>
@@ -195,7 +202,7 @@ export default function Payment() {
                                                         <p className="font-medium">Task Completion Reward</p>
                                                         <p className="text-sm text-muted-foreground">{transaction.date}</p>
                                                     </div>
-                                                    <p className="font-bold text-green-600">+₹{transaction.amount.toFixed(2)}</p>
+                                                    <p className="font-bold text-green-600">+${transaction.amount.toFixed(2)}</p>
                                                 </div>
                                             ))}
                                         </div>

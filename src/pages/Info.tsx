@@ -182,14 +182,14 @@ export default function Info() {
                                                 <SelectValue placeholder="Select plan amount" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="Rs.1499">Rs.1499</SelectItem>
-                                                <SelectItem value="Rs.3999">Rs.3999</SelectItem>
-                                                <SelectItem value="Rs.8999">Rs.8999</SelectItem>
-                                                <SelectItem value="Rs.14999">Rs.14999</SelectItem>
-                                                <SelectItem value="Rs.21999">Rs.21999</SelectItem>
-                                                <SelectItem value="Rs.41999">Rs.41999</SelectItem>
-                                                <SelectItem value="Rs.61999">Rs.61999</SelectItem>
-                                                <SelectItem value="Rs.81999">Rs.81999</SelectItem>
+                                                <SelectItem value="$1499">$1499</SelectItem>
+                                                <SelectItem value="$3999">$3999</SelectItem>
+                                                <SelectItem value="$8999">$8999</SelectItem>
+                                                <SelectItem value="$14999">$14999</SelectItem>
+                                                <SelectItem value="$21999">$21999</SelectItem>
+                                                <SelectItem value="$41999">$41999</SelectItem>
+                                                <SelectItem value="$61999">$61999</SelectItem>
+                                                <SelectItem value="$81999">$81999</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>

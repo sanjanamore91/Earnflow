@@ -482,11 +482,11 @@ export const calculateAndSaveDailyEarning = async (userId: string, date: string)
     }
 
     const latestPlan = plans[plans.length - 1];
-    // Strip "Rs." prefix explicitly first, then keep only digits and dots
-    const cleanAmount = latestPlan.planAmount.replace(/^Rs\./i, '').replace(/[^0-9.]/g, '');
+    // Strip "Rs." prefix or "$" explicitly first, then keep only digits and dots
+    const cleanAmount = latestPlan.planAmount.replace(/^(Rs\.|\$)/i, '').replace(/[^0-9.]/g, '');
     const planValue = parseFloat(cleanAmount);
 
-    const expectedEarning = planValue * 0.01; // 1%
+    const expectedEarning = planValue * 0.0066; // 0.66%
 
     // If earning exists and is correct (or more), we skip.
     // We allow update if amount is 0 or significantly less than expected.
