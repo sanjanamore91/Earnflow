@@ -44,17 +44,17 @@ export default function Login() {
 
         // Create user account
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        
+
         // Send verification email
         await sendEmailVerification(userCredential.user);
         setEmailSent(true);
         setSuccess("Account created! Check your email to verify your account.");
-        
+
         // Reset form
         setEmail("");
         setPassword("");
         setConfirmPassword("");
-        
+
         // Redirect after a delay
         setTimeout(() => {
           navigate("/login");
@@ -62,7 +62,7 @@ export default function Login() {
       } else {
         // Sign in
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        
+
         if (!userCredential.user.emailVerified) {
           setError("Please verify your email before logging in. Check your inbox for the verification link.");
           setLoading(false);
@@ -72,15 +72,15 @@ export default function Login() {
         setSuccess("Login successful! Redirecting...");
         setEmail("");
         setPassword("");
-        
+
         // Redirect after a delay
         setTimeout(() => {
-          navigate("/dashboard");
+          navigate("/info");
         }, 1500);
       }
     } catch (err: any) {
       const errorMessage = err.message || "An error occurred";
-      
+
       if (errorMessage.includes("email-already-in-use")) {
         setError("Email is already registered. Try signing in instead.");
       } else if (errorMessage.includes("invalid-email")) {
@@ -121,9 +121,9 @@ export default function Login() {
 
     try {
       const userCredential = await signInWithPopup(auth, googleProvider);
-      
+
       setSuccess("Login successful! Redirecting...");
-      
+
       // Redirect after a delay
       setTimeout(() => {
         navigate("/dashboard");
@@ -245,7 +245,7 @@ export default function Login() {
               </Button>
             </form>
 
-            <div className="mt-4">
+            {/* <div className="mt-4">
               <div className="relative mb-4">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300"></div>
@@ -271,7 +271,7 @@ export default function Login() {
                 </svg>
                 {isSignUp ? "Sign up with Google" : "Sign in with Google"}
               </Button>
-            </div>
+            </div> */}
 
             {emailSent && (
               <Button
