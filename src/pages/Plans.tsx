@@ -76,9 +76,9 @@ export default function Plans() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[1499, 3999, 8999, 14999, 21999, 41999, 61999, 81999].map((price) => {
-                  const formatted = new Intl.NumberFormat().format(price);
-                  if (price === 1499) {
+                {[17, 45, 99, 167, 245, 467, 689, 999].map((price) => {
+                  const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(price);
+                  if (price === 17) {
                     return (
                       <div
                         key={price}

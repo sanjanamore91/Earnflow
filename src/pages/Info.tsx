@@ -182,14 +182,14 @@ export default function Info() {
                                                 <SelectValue placeholder="Select plan amount" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="$1499">$1499</SelectItem>
-                                                <SelectItem value="$3999">$3999</SelectItem>
-                                                <SelectItem value="$8999">$8999</SelectItem>
-                                                <SelectItem value="$14999">$14999</SelectItem>
-                                                <SelectItem value="$21999">$21999</SelectItem>
-                                                <SelectItem value="$41999">$41999</SelectItem>
-                                                <SelectItem value="$61999">$61999</SelectItem>
-                                                <SelectItem value="$81999">$81999</SelectItem>
+                                                <SelectItem value="$17">$17</SelectItem>
+                                                <SelectItem value="$45">$45</SelectItem>
+                                                <SelectItem value="$99">$99</SelectItem>
+                                                <SelectItem value="$167">$167</SelectItem>
+                                                <SelectItem value="$245">$245</SelectItem>
+                                                <SelectItem value="$467">$467</SelectItem>
+                                                <SelectItem value="$689">$689</SelectItem>
+                                                <SelectItem value="$999">$999</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
