@@ -42,7 +42,7 @@ export default function ProtectedRoute({ children, requireVerifiedEmail }: Prote
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Email id not verified</h1>
-          <p className="text-muted-foreground">Please verify your email to access this page.</p>
+          <p className="text-muted-foreground">Please verify your email to access this page. If you have verified your email please logout and login again.</p>
         </div>
       </div>
     );
