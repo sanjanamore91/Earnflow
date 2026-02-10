@@ -17,6 +17,13 @@ import Payment from "./pages/Payment";
 import Info from "./pages/Info";
 import Hierarchy1499 from "./pages/Hierarchy1499";
 import Sector1499 from "./pages/Sector1499";
+import Sector45 from "./pages/Sector45";
+import Sector99 from "./pages/Sector99";
+import Sector167 from "./pages/Sector167";
+import Sector245 from "./pages/Sector245";
+import Sector467 from "./pages/Sector467";
+import Sector689 from "./pages/Sector689";
+import Sector999 from "./pages/Sector999";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -81,6 +88,62 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Hierarchy1499 />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sector45"
+            element={
+              <ProtectedRoute>
+                <Sector45 />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sector99"
+            element={
+              <ProtectedRoute>
+                <Sector99 />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sector167"
+            element={
+              <ProtectedRoute>
+                <Sector167 />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sector245"
+            element={
+              <ProtectedRoute>
+                <Sector245 />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sector467"
+            element={
+              <ProtectedRoute>
+                <Sector467 />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sector689"
+            element={
+              <ProtectedRoute>
+                <Sector689 />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sector999"
+            element={
+              <ProtectedRoute>
+                <Sector999 />
               </ProtectedRoute>
             }
           />

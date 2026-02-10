@@ -78,37 +78,36 @@ export default function Plans() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[17, 45, 99, 167, 245, 467, 689, 999].map((price) => {
                   const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(price);
-                  if (price === 17) {
-                    return (
-                      <div
-                        key={price}
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => navigate("/sector1499")}
-                        onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && navigate("/sector1499")}
-                        className="cursor-pointer focus:outline-none"
-                      >
-                        <Card>
-                          <CardHeader>
-                            <CardTitle className="text-lg">{formatted}</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <p className="text-sm text-muted-foreground">Plan amount: {formatted}</p>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    );
-                  }
+
+                  // Map price to route
+                  let route = "";
+                  if (price === 17) route = "/sector1499";
+                  else if (price === 45) route = "/sector45";
+                  else if (price === 99) route = "/sector99";
+                  else if (price === 167) route = "/sector167";
+                  else if (price === 245) route = "/sector245";
+                  else if (price === 467) route = "/sector467";
+                  else if (price === 689) route = "/sector689";
+                  else if (price === 999) route = "/sector999";
 
                   return (
-                    <Card key={price}>
-                      <CardHeader>
-                        <CardTitle className="text-lg">{formatted}</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-muted-foreground">Plan amount: {formatted}</p>
-                      </CardContent>
-                    </Card>
+                    <div
+                      key={price}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => navigate(route)}
+                      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && navigate(route)}
+                      className="cursor-pointer focus:outline-none"
+                    >
+                      <Card className="hover:border-primary/50 transition-colors">
+                        <CardHeader>
+                          <CardTitle className="text-lg">{formatted}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm text-muted-foreground">Plan amount: {formatted}</p>
+                        </CardContent>
+                      </Card>
+                    </div>
                   );
                 })}
               </div>

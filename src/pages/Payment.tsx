@@ -140,7 +140,7 @@ export default function Payment() {
                                         <h4 className="font-semibold">Requirements:</h4>
                                         <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                                             <li>Minimum withdrawal threshold must be reached</li>
-                                            <li>Balance must be at least ${(currentPlanAmount * 0.20).toFixed(2)} (20% of plan)</li>
+                                            <li>Balance must be at least ${(currentPlanAmount * 0.20).toFixed(2)}</li>
                                             <li>Twenty days interval between withdrawals</li>
                                             <li>Valid payment method must be configured</li>
                                             <li>Account must be verified</li>
