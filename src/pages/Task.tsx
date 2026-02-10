@@ -102,6 +102,21 @@ export default function Task() {
             // Optional: User could be notified via toast here
             // alert("You need an active plan to access tasks.");
           }, 100);
+          return;
+        }
+
+        const latestPlan = plans[plans.length - 1];
+        if (latestPlan.createdAt) {
+          const planDate = new Date(latestPlan.createdAt);
+          const currentDate = new Date();
+          const diffTime = Math.abs(currentDate.getTime() - planDate.getTime());
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+          if (diffDays > 140) {
+            alert("Your plan has expired (140 days limit). Please renew your plan.");
+            navigate("/info");
+            return;
+          }
         }
       } catch (error) {
         console.error("Error checking plan status:", error);
